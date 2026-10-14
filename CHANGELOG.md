@@ -6,9 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- **A product's design repository shoots every page in every state, the surface alone.** `design-repo`'s skeleton gains `bin/shots` and its generator `lib/shots.js`, which walk each page's state bar in the installed Chrome and screenshot the `[data-surface]` element in each state into `tmp/shots/`, with a contact sheet; a caption or paragraph drawn beside the surface never reaches a shot. A page that breaks the contract — not exactly one surface, no state, several states and no state bar, a bar whose tabs disagree with the states — is named, for a brief to fix. `bin/sync` runs it after mirroring a project export, and `test/shots_test.rb` holds each rule, skipping where node or a browser is missing.
+- **A page with many states groups them into families.** `design-handoff` §4: a Family row above the State row, a family's states contiguous and named `<Family> · <state>` without repeating the family, every state carrying `[data-family]` or none. `lib/shots.js` reads a grouped bar — each tab labelled with the state part, `Default` for the bare family — reaches the tabs it hides, and names a split family, a state outside its family's name and one repeating it.
+- **A page states its surface and states in its markup.** `design-handoff` §4: `[data-surface]`, `[data-state="<Name>"]` and a `[role="tablist"][aria-label="State"]` bar; the rule goes into the project's `readme.md` with the rest of §4, so no brief restates it.
+
 ### Changed
 
 - **Renamed to `agentic-sdlc`.** The template covers the whole lifecycle of building software with agents — plan, design, build, verify, release, decide — and the shorter name says so; GitHub's template flag already marks it as a template.
+- **A product owns the components its experience needs, and promotes one only when it is generic.** `design-handoff` §5: a shared component is used as it is where it serves the job as well as anything could; otherwise the product draws its own and keeps it. That the shared system lacks a component is no reason to move it there: it is promoted — through the stand-in route — only once it is generic enough to serve other applications unchanged.
+- **A terminal client's page is snapshots only.** `design-handoff` §4: a terminal redraws a whole grid per key press, so one frame per state is everything the user sees, and a page answering keys would write the application's key map a second time. A step through the surface is a run of named states. A behaviour question is drawn as candidate states and raised in the design chat, never labelled on the page.
 
 ## [0.4.2] - 2026-10-08
 

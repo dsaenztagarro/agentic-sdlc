@@ -63,20 +63,30 @@ The application keeps changing; a drawn page changes only when someone redraws i
 A sentence on a page about how the application behaves is true the day it is drawn and drifts after, nothing checks it, and the next reader building from the page takes it as current.
 
 - **A page shows a surface in every state it can be in** — empty, loading, error, long data; read, edit and create where they apply. The states share one page, one panel each, and a state switcher on the page reaches every one of them; nothing shows two states at once. Each state is named in two or three words, and that name is the switcher's label — the page carries no other caption.
-- **Interaction belongs on the page; the business does not.** A prototype may animate a drawer opening, a row expanding, a toast arriving — that is the surface. Validations, save rules, time windows, who may write what and the data model belong to the application, stated by its tests and decision records.
+- **The page says so in its markup, so a generator can read it.** One `[data-surface]` element is the application as it renders, chrome included; each state is a `[data-state="<Name>"]` element inside it; the switcher is `[role="tablist"][aria-label="State"]`, one `[role="tab"]` per state, labelled with its name. The design repository's `bin/shots` walks that bar on every page after each sync and captures the surface alone in each state — what a reader looks at is the application, never what was drawn around it — and names every page that breaks the contract, for a brief to fix.
+- **A page with many states groups them into families.** A family is one situation of the surface — the list, a record, a form in one of its cases — and its states are that situation's variants. The bar gets a Family row above the State row: the Family row picks a family, and the State row shows that family's states alone. A family's states sit together, in the order a reader meets them, so stepping through the bar finishes one family before the next. Each state is named `<Family> · <state>`, or the bare family for its first, and the state part never repeats the family, since the row above already names it. In the markup every state carries `[data-family="<Family>"]`, or none does; each tab is labelled with the state part, `Default` for the bare one, and the State row may hide the tabs of every family but the one shown. A state generated from another — loading, error, long data — is named into the family it varies, never left bare under it. `bin/shots` names a split family, a state outside its family's name and one repeating it.
+- **Interaction belongs on a web page; the business does not.** A prototype may animate a drawer opening, a row expanding, a toast arriving — that is the surface. Validations, save rules, time windows, who may write what and the data model belong to the application, stated by its tests and decision records.
+- **A terminal client's page is snapshots only.** A terminal redraws a whole grid of cells on each key press, with no hover, transition or reflow between, so one frame per state is everything the user sees. Interaction there is the key map, which is the application's behaviour: a page that answers keys writes it a second time, unchecked. A step through the surface is a run of named states instead — `Cockpit`, `Filter typing`, `Filtered to one`, `Legend open` — each one frame.
 - **The test for a sentence on a page: could someone open the running application and find it false?** Then it comes out.
 - **The design project keeps no decision log, rulings page or behaviour hand-off.** Each is a second copy of an application record, and drifts from it.
-- **A behaviour question raised by drawing goes back as a question.** It is drawn and labelled as open, never settled on the page, and answered here (§7).
+- **A behaviour question raised by drawing goes back as a question.** Each candidate is drawn as its own state, named for what it shows; the question is raised in the design chat, never written on the page, and answered here (§7).
 - **A state that needs a paragraph to be understood is a missing state.** Draw it.
 - **Sweeping claims out of a page removes sentences, never drawings.** An artboard asserts nothing about the application; one that goes out with the prose around it is a defect, sent back through a brief.
 - **A component's example page is a page too.** It shows the component in each case it has, as states, and nothing else. Each of its rules has one home: the shared system's component file once it has landed there, which is where most of them already are; the comment beside the class for a difference only this product has; a request to the shared system when every product should follow it. Options weighed, research and rollout sweeps belong in the design chat and the tracker. Keeping a page does not exempt it from this rule.
 
-**This rule goes into the design project's own `readme.md` through `/design-sync`** when the project is created: it must hold in every export, and a rule pasted into a brief dies with the brief (§2).
+**This rule, its markup contract included, goes into the design project's own `readme.md` through `/design-sync`** when the project is created: it must hold in every export, and a rule pasted into a brief dies with the brief (§2). A project created before the contract gets it once, as a brief that redraws every page to it; after that no brief restates it.
 
-## 5. A component the shared design system lacks: one stand-in, landed by deletion
+## 5. A component the product needs: owned by the product, promoted only when generic
 
 Only where a shared design system is vendored (§1).
-When the project's pages need a component that system does not ship, the project draws it once, in its own leaf, under a `STAND-IN — delete when the design system lands <Component>` marker, and writes a brief in the **shared system's repository**, `briefs/proposed/<component>.brief.md`, carrying the same rules and class names, byte for byte. The application writes those classes from the start.
+
+- **A shared component that serves the job as well as anything could is used as it is.**
+- **Otherwise the product owns one.** A component that makes this product's experience better — a widget only its domain needs, or a shape the shared one cannot take without bending — is drawn in the product's project, in its own leaf, and is the product's for good. That the shared system lacks it is no reason to move it there; best-in-class surfaces need components fitted to each product.
+- **A component is promoted only once it is generic enough to serve other applications** — its rules hold with this product's domain taken out, and a second application would use it unchanged. Then, and only then, it takes the route below.
+
+### Promoting a component: one stand-in, landed by deletion
+
+The product's leaf becomes a stand-in, under a `STAND-IN — delete when the design system lands <Component>` marker, and a brief goes in the **shared system's repository**, `briefs/proposed/<component>.brief.md`, carrying the same rules and class names, byte for byte. The application keeps writing those classes.
 
 - **Byte-identical is the point.** When the component lands, the stand-in is deleted and no markup changes; a stand-in that drifted from its brief turns landing into a migration.
 - **The request lives with the system that will draw it.** One brief per component, attached to the shared system's project one at a time, and deleted once it lands.
@@ -112,12 +122,12 @@ The copy does not follow the shared system: a request that lands there reaches t
   the project draws it; export downloaded         <- a person
         |
         v
-  in <project>-ds: sync, regenerate, run the suite
+  in <project>-ds: sync (which shoots every page), regenerate, run the suite
         |
         v
   review the sync diff: a rule changed or only a comment?
   every changed page well-formed? a removal that orphaned a heading?
-  a drawing gone with the prose around it?
+  a drawing gone with the prose around it? a page bin/shots named?
         |
         v
   commit the mirror, as produced; a defect becomes a new brief
@@ -161,7 +171,7 @@ A long queue is the signal to triage, not to reshape: the reshape waits until th
 ## 9. What an agent must not do
 
 - **Edit the export mirror**, or the vendored artefact here.
-- **Style anything outside the vendored artefact** — a colour, a spacing, a component the design system does not ship. The fix is a brief, not a local rule.
+- **Style anything outside the vendored artefact** — a colour, a spacing, a component neither the product's design nor the shared system ships. The fix is a brief, not a local rule.
 - **Cite a brief or a design page from code.** Cite the decision record for *why* and the test for *what*.
 - **Answer a behaviour question on a page.** Behaviour is decided here, in a test.
 - **Start a route that §2 says a person starts.**

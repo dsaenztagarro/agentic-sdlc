@@ -1,4 +1,4 @@
-# bin/sync stages an export here before mirroring it.
+# bin/sync stages an export here before mirroring it, and bin/shots writes its screenshots here.
 tmp/
 
 # macOS Finder metadata.

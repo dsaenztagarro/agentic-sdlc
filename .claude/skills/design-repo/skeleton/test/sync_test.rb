@@ -29,6 +29,19 @@ class SyncTest < Minitest::Test
     assert_path_exists File.join(@root, "pages/_ds/shared/_ds_manifest.json")
   end
 
+  def test_a_project_mirror_is_followed_by_shots_and_a_breach_does_not_undo_it
+    checkout(kind: "project")
+    project_export
+    File.write(File.join(@root, "bin/shots"), "#!/bin/sh\ntouch \"$(dirname \"$0\")/../shot\"\nexit 1\n")
+    File.chmod(0o755, File.join(@root, "bin/shots"))
+
+    status, err = sync
+
+    assert status.success?, err
+    assert_path_exists File.join(@root, "shot")
+    assert_path_exists File.join(@root, "pages/books.html")
+  end
+
   def test_a_design_system_export_is_mirrored_into_system
     checkout(kind: "system")
     system_export

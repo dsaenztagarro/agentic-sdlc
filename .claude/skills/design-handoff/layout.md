@@ -30,7 +30,7 @@ A product may also own a Design System project of its own, when it extends a sha
 +-- AGENTS.md               the rules an agent working here needs; CLAUDE.md is `@AGENTS.md`
 +-- CLAUDE.md
 +-- Rakefile                `rake` is the gate: every check, then the tests
-+-- .gitignore              tmp/, .DS_Store, .claude/worktrees/
++-- .gitignore              tmp/ (the sync's staging and the shots), .DS_Store, .claude/worktrees/
 +-- .github/workflows/      the gate, weekly on the default branch and by hand
 +-- briefs/
 |   +-- README.md           what belongs here, the lifecycle, how to write one
@@ -47,6 +47,7 @@ A product may also own a Design System project of its own, when it extends a sha
 +-- bin/
 |   +-- sync                mirror a fresh export
 |   +-- ds-status           whether pages/_ds/ carries what the shared system does   (product)
+|   +-- shots               every page in every state, the surface alone, into tmp/shots/   (product)
 |   +-- vendor-sync         refresh vendor/ from the shared system's checkout
 +-- .design-sync/           config.json and NOTES.md, when files are pushed up with /design-sync
 +-- .claude/skills/         skills that only make sense here, such as the contract's
@@ -74,7 +75,7 @@ The requests made **to this repository's Claude Design project**, and nothing el
 - **`pages/_ds/<project-id>/` is committed.** It is the snapshot of the shared system the pages were drawn and render against, as the export carries it. A page must render the same on any clone, so it is never a symlink to a local checkout of the shared system, and never git-ignored.
 - **`bin/ds-status` says whether that snapshot is current**, by comparing its `_ds_manifest.json` with the shared system's; `design-handoff` §5 has how the copy is refreshed.
 - The snapshot is not a second source: the shared system's repository is. A diff between `pages/_ds/<project-id>/` and the shared system's `system/` shows how far behind it is.
-- What a page may hold is ruled in §4 of the skill: the surface, never the application.
+- What a page may hold is ruled in §4 of the skill: the surface, never the application, marked up so `bin/shots` can find the surface and walk its states.
 
 ### `system/` — a Design System project
 
@@ -113,6 +114,7 @@ The generators, and their tests. `test/` also holds `bin/sync`'s tests, each run
   - a page that is not one canonical prototype per surface — a versioned copy, an audit, a rationale or an options page.
 - It stages into a git-ignored `tmp/`, deletes only inside the checkout, mirrors, reports what changed, and leaves committing to a person.
 - **`ds-status`**, in a product's repository, compares the `_ds/` snapshot's manifest with the shared system's, and exits 1 when the snapshot lacks a token or component the shared system carries.
+- **`shots`**, in a product's repository, runs after every sync: it walks each page's state bar and screenshots the `[data-surface]` element in each state into the git-ignored `tmp/shots/`, with an `index.html` contact sheet, and exits 1 naming each page that breaks the page contract (§4 of the skill). The generator is `lib/shots.js`; Playwright drives the installed Chrome from a cache outside the repository, and its test skips, saying so, where node or a browser is missing.
 - **`vendor-sync`** refreshes `vendor/` from a checkout of the shared system.
 
 ### `.design-sync/`

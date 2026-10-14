@@ -26,7 +26,7 @@ NAME="__NAME__"
 UPSTREAM=()
 
 # Authoring noise a designer leaves in a project, referenced by nothing.
-EXCLUDES=(uploads/ scraps/ '*.png')
+EXCLUDES=(uploads/ scraps/ '*.png' .thumbnail)
 
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
 case "$KIND" in
@@ -129,4 +129,17 @@ if git -C "$repo_root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     printf '%s\n' "$changes" | head -40
     echo "mirrored into $folder/ — review with: git diff -- $folder"
   fi
+fi
+
+# --- Shots of every page, the surface alone ----------------------------------
+# A contract breach is reported, not refused: the mirror is the record of what the project drew,
+# and the fix is a brief.
+if [[ "$KIND" == "project" && -x "$repo_root/bin/shots" ]]; then
+  shots_status=0
+  "$repo_root/bin/shots" || shots_status=$?
+  case "$shots_status" in
+    0) ;;
+    1) echo "  brief the pages named above; commit the mirror as produced." ;;
+    *) echo "  no shots taken; the mirror is complete." ;;
+  esac
 fi

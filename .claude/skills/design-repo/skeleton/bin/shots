@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+# shots — screenshot every page in pages/ in every state it names, of the application surface alone.
+#
+# The contract a page keeps and what is refused are in lib/shots.js. Playwright drives the installed
+# Chrome; it lives in a cache outside the repository, because nothing else here needs node and the
+# generators stay plain Ruby.
+#
+# Usage:
+#   bin/shots [PAGES_DIR [OUT_DIR]]   Default: pages/ into tmp/shots/
+#
+# Exit 0 when every page keeps the contract, 1 when one does not, 2 when node or a browser is missing.
+set -euo pipefail
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/design-repo-shots"
+
+command -v node >/dev/null || { echo "error: node is not installed — bin/shots drives a browser through Playwright." >&2; exit 2; }
+if [[ ! -d "$cache/node_modules/playwright-core" ]]; then
+  mkdir -p "$cache"
+  npm install --prefix "$cache" --silent --no-audit --no-fund playwright-core@1 >/dev/null ||
+    { echo "error: could not install playwright-core into $cache." >&2; exit 2; }
+fi
+
+NODE_PATH="$cache/node_modules" exec node "$root/lib/shots.js" "${1:-$root/pages}" "${2:-$root/tmp/shots}"
